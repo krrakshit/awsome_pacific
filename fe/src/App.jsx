@@ -182,24 +182,35 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <h1>Organization Notification System</h1>
-        <div className="connection-status">
-          Status: <span className={isConnected ? 'connected' : 'disconnected'}>
-            {isConnected ? 'Connected' : 'Disconnected'}
+    <div className="max-w-6xl mx-auto p-5 min-h-screen bg-space-950">
+      {/* Header */}
+      <header className="flex flex-col md:flex-row justify-between items-center mb-8 p-6 bg-gradient-primary text-white rounded-2xl shadow-2xl shadow-black/50 border border-white/10 backdrop-blur-sm">
+        <h1 className="text-2xl md:text-3xl font-bold text-gradient mb-4 md:mb-0">
+          Organization Notification System
+        </h1>
+        <div className="flex items-center gap-3 px-4 py-2 bg-white/10 rounded-full backdrop-blur-sm">
+          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`}></div>
+          <span className="text-sm font-semibold">
+            Status: <span className={isConnected ? 'status-connected' : 'status-disconnected'}>
+              {isConnected ? 'Connected' : 'Disconnected'}
+            </span>
           </span>
         </div>
       </header>
 
+      {/* Status Messages */}
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
-      <div className="main-content">
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
         {/* Create Organization Section */}
-        <section className="create-org-section">
-          <h2>Create New Organization</h2>
-          <div className="create-org-form">
+        <section className="card relative">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary-500 to-primary-600 rounded-t-2xl"></div>
+          <h2 className="text-xl font-bold text-gradient mb-6 pb-3 border-b border-space-700">
+            Create New Organization
+          </h2>
+          <div className="space-y-5">
             <input
               type="text"
               value={newOrgName}
@@ -207,11 +218,12 @@ function App() {
               onKeyDown={handleOrgNameKeyPress}
               placeholder="Enter organization name"
               disabled={!isConnected || isCreatingOrg}
+              className="input-field"
             />
             <button
               onClick={createOrganization}
               disabled={!isConnected || isCreatingOrg || !newOrgName.trim()}
-              className={isCreatingOrg ? 'loading' : ''}
+              className={`btn-primary w-full ${isCreatingOrg ? 'btn-loading' : ''}`}
             >
               {isCreatingOrg ? 'Creating...' : 'Create Organization'}
             </button>
@@ -219,76 +231,96 @@ function App() {
         </section>
 
         {/* Send Notification Section */}
-        <section className="notification-section">
-          <h2>Send Notification</h2>
-          <div className="notification-form">
-            <div className="form-group">
-              <label htmlFor="org-select">Select Organization:</label>
+        <section className="card relative">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-t-2xl"></div>
+          <h2 className="text-xl font-bold text-gradient mb-6 pb-3 border-b border-space-700">
+            Send Notification
+          </h2>
+          <div className="space-y-5">
+            <div>
+              <label htmlFor="org-select" className="block text-sm font-semibold text-slate-300 mb-2">
+                Select Organization:
+              </label>
               <select
                 id="org-select"
                 value={selectedOrg}
                 onChange={(e) => handleOrgChange(e.target.value)}
                 disabled={!isConnected || organizations.length === 0}
+                className="input-field"
               >
                 <option value="">-- Select Organization --</option>
                 {organizations.map((org) => (
-                  <option key={org} value={org}>
+                  <option key={org} value={org} className="bg-space-800 text-slate-200">
                     {org}
                   </option>
                 ))}
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="message-input">Notification Message:</label>
+            <div>
+              <label htmlFor="message-input" className="block text-sm font-semibold text-slate-300 mb-2">
+                Notification Message:
+              </label>
               <textarea
                 id="message-input"
                 value={notificationMessage}
                 onChange={(e) => setNotificationMessage(e.target.value)}
                 onKeyDown={handleMessageKeyPress}
                 placeholder="Enter your notification message (Ctrl+Enter to send)"
-                rows="3"
+                rows="4"
                 disabled={!isConnected || !selectedOrg}
+                className="input-field resize-none"
               />
             </div>
 
             <button
               onClick={sendNotification}
               disabled={!isConnected || !selectedOrg || !notificationMessage.trim()}
-              className="send-button"
+              className="btn-success w-full"
             >
               Send Notification
             </button>
           </div>
         </section>
+      </div>
 
-        {/* Messages Section */}
-        <section className="messages-section">
-          <h2>Notifications ({selectedOrg || 'No organization selected'})</h2>
-          <div className="messages-container">
-            {messages.length === 0 ? (
-              <p className="no-messages">No notifications yet. Select an organization and send a message!</p>
-            ) : (
-              messages
+      {/* Messages Section */}
+      <section className="card">
+        <h2 className="text-xl font-bold text-gradient mb-6 pb-3 border-b border-space-700">
+          Notifications {selectedOrg && <span className="text-primary-400">({selectedOrg})</span>}
+        </h2>
+        <div className="max-h-96 overflow-y-auto scrollbar-thin bg-space-800/30 rounded-xl p-5 border border-space-700">
+          {messages.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4 opacity-20">📢</div>
+              <p className="text-slate-400 text-lg font-medium">
+                No notifications yet. Select an organization and send a message!
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages
                 .filter(msg => !selectedOrg || msg.orgid === selectedOrg)
                 .map((msg) => (
-                  <div key={msg.id} className="message">
-                    <div className="message-header">
-                      <span className="org-badge">{msg.orgid}</span>
-                      <span className="timestamp">
+                  <div key={msg.id} className="message-card">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-3 gap-2">
+                      <span className="inline-flex items-center px-3 py-1 bg-gradient-primary text-white text-sm font-semibold rounded-full shadow-lg">
+                        {msg.orgid}
+                      </span>
+                      <span className="text-slate-400 text-sm font-medium">
                         {new Date(msg.timestamp).toLocaleString()}
                       </span>
                     </div>
-                    <div className="message-content">
+                    <div className="text-slate-200 leading-relaxed">
                       {typeof msg.content === 'object' ? msg.content.message : msg.content}
                     </div>
                   </div>
-                ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-        </section>
-      </div>
+                ))}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+      </section>
     </div>
   )
 }
