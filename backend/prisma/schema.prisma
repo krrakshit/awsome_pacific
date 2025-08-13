@@ -1,0 +1,51 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User{
+  id String @id @default(uuid())
+  name String?
+  email String @unique 
+  password String?
+  premium Boolean @default(false)
+  orgs Org[] @relation("UserOrgs")
+  orgCount Int @default(0)
+  dailyNotificationCount Int @default(0) 
+  lastNotificationReset DateTime @default(now()) 
+  createdAt DateTime @default(now())
+}
+
+model Org{
+  id String @id @default(uuid())
+  name String @unique 
+  notifications Notification[]
+  userId String
+  user User @relation("UserOrgs", fields: [userId], references: [id], onDelete: Cascade)
+  dailyNotificationCount Int @default(0) 
+  lastNotificationReset DateTime @default(now()) 
+  createdAt DateTime @default(now())
+  @@map("Org")
+}
+
+model Notification{
+  id String @id @default(uuid())
+  sentTime DateTime @default(now())
+  content String
+  orgId String
+  org Org @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgName String 
+  senderName String
+  senderId String 
+}
