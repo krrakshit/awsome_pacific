@@ -1,64 +1,134 @@
-import { PrismaClient } from "../prisma/generated/prisma"
-import express from "express"
-const prisma = new PrismaClient();;
+import { PrismaClient } from "../prisma/generated/prisma";
+import express from "express";
+const prisma = new PrismaClient();
 
 const app = express();
-app.use(express.json())
+app.use(express.json());
 
-app.post("/org", async (req,res) => {
-    const response = await prisma.user.create({
-        data : {
-            name  : req.body.name,
-            email : req.body.email,
-            password : req.body.password
-         }
-    })
-    console.log("added data");
-    console.log(response.id);
-    return res.json(response)
-})
+app.post("/org", async (req, res) => {
+  try {
+    const { id, name } = req.body;
 
-app.post("/create" , async (req,res) => {
+    // Validate required fields
+    if (!id || !name) {
+      return res.status(400).json("User ID and organization name are required");
+    }
     const user = await prisma.user.findFirst({
-         where : {
-             id : req.body.id
-         }
-     })
- 
-     if (!user) {
-         return res.status(404).json("User not found")
-     }
-    const check = await prisma.org.findFirst({
-        where : {
-            name : req.body.name
-        }
-    })
-    if(check) { 
-        return res.json("org already there")
+      where: { id: id },
+    });
+
+    if (!user) {
+      return res.status(404).json("User not found");
     }
 
-    const response = await prisma.org.create({
-        data:{
-            name : req.body.name,
-            userId : req.body.id
-        }
-    })
+    const { orgCount, premium } = user;
 
+    // Check organization limits
+    if (!premium && orgCount >= 1) {
+      return res
+        .status(400)
+        .json("You have already added org. Subscribe to premium to add more");
+    }
 
-    const update = await prisma.user.update({
-        where : {
-            id : req.body.id
+    if (premium && orgCount >= 5) {
+      return res
+        .status(400)
+        .json("You have reached the maximum limit of 5 organizations");
+    }
+    const existingOrg = await prisma.org.findFirst({
+      where: { name: name },
+    });
+
+    if (existingOrg) {
+      return res
+        .status(400)
+        .json("Organization name already exists. Please use a different name");
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const newOrg = await tx.org.create({
+        data: {
+          name: name,
+          userId: id,
         },
-        data : {
-            orgCount : user.orgCount + 1,
-        }
-    })
-    console.log("added org");
-    console.log(response.id);
-    return res.json(response)
-})
+      });
+
+      await tx.user.update({
+        where: { id: id },
+        data: {
+          orgCount: orgCount + 1,
+        },
+      });
+
+      return newOrg;
+    });
+
+    return res.status(201).json(result);
+  } catch (error) {
+    console.error("Error creating organization:", error);
+    return res.status(500).json("Internal server error");
+  }
+});
+
+app.post("/notifications", async (req, res) => {
+  try {
+    const { userId, orgId, content } = req.body;
+    const user = await prisma.user.findFirst({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json("User not found");
+    }
+
+    const org = await prisma.org.findFirst({
+      where: { id: orgId, userId: userId },
+    });
+
+    if (!org) {
+      return res
+        .status(404)
+        .json("Organization not found or you don't have access");
+    }
+
+    let currentUserCount = user.dailyNotificationCount;
+    const dailyLimit = user.premium ? 50 : 10;
+
+    if (currentUserCount >= dailyLimit) {
+      return res
+        .status(400)
+        .json(
+          `Daily notification limit reached. ${
+            user.premium ? "Premium" : "Free"
+          } users can send ${dailyLimit} notifications per day across all organizations`
+        );
+    }
+
+    const notification = await prisma.notification.create({
+      data: {
+        content: content,
+        orgId: orgId,
+        orgName: org.name,
+        senderName: user.name,
+        senderId: user.id,
+      },
+    });
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        dailyNotificationCount: currentUserCount + 1,
+      },
+    });
+
+    return res.status(201).json(notification);
+  } catch (error) {
+    console.error("Error sending notification:", error);
+    return res.status(500).json("Internal server error");
+  }
+});
 
 const PORT = 3000;
-app.listen(PORT,()=>{
-    console.log("Server running on port 3000");
-})
+app.listen(PORT, () => {
+  console.log("Server running on port 3000");
+});
