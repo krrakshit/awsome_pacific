@@ -139,7 +139,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-emerald-100 mb-4">Everything you need to manage notifications</h2>
             <p className="text-xl text-emerald-200 max-w-2xl mx-auto">
-              From real-time delivery to advanced analytics, we've got your notification needs covered
+              From real-time delivery to advanced analytics, we`&apos`ve got your notification needs covered
             </p>
           </div>
 
@@ -316,8 +316,8 @@ export default function LandingPage() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-emerald-200">
-                    "NotifyHub transformed our user engagement. The real-time delivery and multi-org support made it
-                    perfect for our enterprise needs. Setup was incredibly simple."
+                    `&apos`NotifyHub transformed our user engagement. The real-time delivery and multi-org support made it
+                    perfect for our enterprise needs. Setup was incredibly simple.`&apos`
                   </p>
                   <div className="flex mt-4">
                     {[...Array(5)].map((_, i) => (
