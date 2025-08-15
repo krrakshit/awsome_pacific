@@ -1,6 +1,6 @@
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
-import { PrismaClient } from "../../backend/prisma/generated/prisma";
+import { PrismaClient } from "../../backend/prisma/generated/prisma"
 import type {
   Session as NextAuthSession,
   User as NextAuthUser,
