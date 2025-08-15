@@ -1,4 +1,4 @@
-import { WebSocketServer, WebSocket } from "ws";
+import  WebSocket from "ws";
 import { createClient, RedisClientType } from "redis";
 
 // Type definitions
@@ -39,7 +39,26 @@ const publisher: RedisClientType = createClient();
 // Store active publishers by orgName
 const activePublishers: Map<string, boolean> = new Map();
 
-const wss: WebSocketServer = new WebSocketServer({ port: 8080 });
+const allowedOrigins = [
+  'http://localhost:3000' // for development
+];
+
+// const wss: WebSocketServer = new WebSocketServer({ port: 8080 });
+const wss = new WebSocket.Server({
+  port: 8080,
+  // @ts-ignore
+  verifyClient: (info : any) => {
+    const origin = info.origin;
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return true;
+    }
+    
+    console.log(`Rejected connection from origin: ${origin}`);
+    return false;
+  }
+});
 let totaluser: number = 0;
 
 // Initialize Redis connections

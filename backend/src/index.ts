@@ -1,8 +1,15 @@
 import { PrismaClient } from "../prisma/generated/prisma";
 import express from "express";
+import cors from "cors";
 const prisma = new PrismaClient();
 
 const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.post("/org", async (req, res) => {
@@ -70,11 +77,38 @@ app.post("/org", async (req, res) => {
   }
 });
 
+app.get("/user/organizations", async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return res.status(400).json("User ID is required");
+    }
+
+    const organizations = await prisma.org.findMany({
+      where: { userId: userId as string },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(200).json(organizations);
+  } catch (error) {
+    console.error("Error fetching organizations:", error);
+    return res.status(500).json("Internal server error");
+  }
+});
+
 app.post("/notifications", async (req, res) => {
   try {
-    const { userId, orgId, content } = req.body;
+    const { id, orgId, content } = req.body;
     const user = await prisma.user.findFirst({
-      where: { id: userId },
+      where: { id: id },
     });
 
     if (!user) {
@@ -82,7 +116,7 @@ app.post("/notifications", async (req, res) => {
     }
 
     const org = await prisma.org.findFirst({
-      where: { id: orgId, userId: userId },
+      where: { id: orgId, userId: id },
     });
 
     if (!org) {
@@ -115,7 +149,7 @@ app.post("/notifications", async (req, res) => {
     });
 
     await prisma.user.update({
-      where: { id: userId },
+      where: { id: id },
       data: {
         dailyNotificationCount: currentUserCount + 1,
       },
