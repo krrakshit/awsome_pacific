@@ -47,7 +47,7 @@ export async function apiCall(
 
     const response = await fetch(
       `${
-        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"
+        process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000"
       }${endpoint}`,
       {
         ...options,

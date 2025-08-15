@@ -1,6 +1,7 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
+import { Providers } from "./providers"
 
 export const metadata: Metadata = {
   title: "NotifyHub - Powerful Notifications Made Simple",
@@ -18,7 +19,9 @@ export default function RootLayout({
       <head>
         <style></style>
       </head>
-      <body>{children}</body>
+      <body>
+        <Providers>
+         {children} </Providers></body>
     </html>
   )
 }

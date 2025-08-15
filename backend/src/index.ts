@@ -128,7 +128,7 @@ app.post("/notifications", async (req, res) => {
   }
 });
 
-const PORT = 3000;
+const PORT = 5000;
 app.listen(PORT, () => {
-  console.log("Server running on port 3000");
+  console.log("Server running on port 5000");
 });

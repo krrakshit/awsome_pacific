@@ -79,7 +79,7 @@ export const NEXT_AUTH = {
             await prisma.user.create({
               data: {
                 email: user.email,
-                name: user.name,
+                name: user.name || "Anonymouse user",
               },
             });
             console.log(
