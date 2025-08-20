@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Color, Scene, Fog, Vector3 } from "three";
 import ThreeGlobe from "three-globe";
-import { useThree, Canvas, extend, ThreeEvent } from "@react-three/fiber";
+import { useThree, Canvas, extend } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import countries from "@/data/globe.json";
 declare module "@react-three/fiber" {
@@ -272,7 +272,12 @@ export function WebGLRendererConfig() {
   const { gl, size } = useThree();
 
   useEffect(() => {
-    gl.setPixelRatio(window.devicePixelRatio);
+    // Check if we're in the browser environment
+    if (typeof window !== 'undefined') {
+      gl.setPixelRatio(window.devicePixelRatio);
+    } else {
+      gl.setPixelRatio(1); // Default pixel ratio for SSR
+    }
     gl.setSize(size.width, size.height);
     gl.setClearColor(0x000000, 0); // Transparent background to match our theme
   }, [gl, size.width, size.height]);

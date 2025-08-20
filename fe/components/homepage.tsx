@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -22,8 +23,16 @@ import {
   MessageSquare,
   ChevronRight,
 } from "lucide-react"
-import Link from "next/link"
-import { World } from "@/components/ui/globe"
+
+// Dynamically import the World component to avoid SSR issues
+const World = dynamic(() => import("@/components/ui/globe").then(mod => ({ default: mod.World })), { 
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-emerald-500"></div>
+    </div>
+  )
+});
 
 // Globe configuration matching our theme
 const globeConfig = {
@@ -280,9 +289,7 @@ export default function HomePage() {
             </nav>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" className="text-emerald-300 hover:text-emerald-100 hover:bg-black/50">
-              <Link href="/login">
                 Sign In
-              </Link>
               </Button>
               <Button className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-black">
                 Get Started
