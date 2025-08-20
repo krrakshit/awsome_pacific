@@ -11,6 +11,8 @@ import { Separator } from "@/components/ui/separator";
 interface Organization {
   id: string;
   name: string;
+  vkey: string; // Add this field
+  createdAt: string; // Add this field too
 }
 
 export default function Dashboard() {
@@ -315,6 +317,13 @@ export default function Dashboard() {
                     <div className="p-4 rounded-lg bg-emerald-950/20 border border-emerald-600/20">
                       <h3 className="font-semibold text-emerald-100">{org.name}</h3>
                       <p className="text-sm text-emerald-300">ID: {org.id}</p>
+                      <p className="text-sm text-emerald-300">
+                        <span className="font-medium text-emerald-200">vKey:</span> 
+                        <span className="font-mono bg-emerald-950/50 px-2 py-1 rounded ml-2">{org.vkey}</span>
+                      </p>
+                      <p className="text-xs text-emerald-400 mt-2">
+                        Created: {new Date(org.createdAt).toLocaleDateString()}
+                      </p>
                     </div>
                     {index < organizations.length - 1 && (
                       <Separator className="bg-emerald-600/30 my-4 md:hidden" />

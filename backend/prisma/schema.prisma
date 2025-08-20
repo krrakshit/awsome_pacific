@@ -31,6 +31,7 @@ model Org{
   id String @id @default(uuid())
   name String
   notifications Notification[]
+  vkey String @unique
   userId String
   user User @relation("UserOrgs", fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

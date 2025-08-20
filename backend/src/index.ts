@@ -12,6 +12,32 @@ app.use(
 );
 app.use(express.json());
 
+// Function to generate unique vkey
+function generateVkey(): string {
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
+  for (let i = 0; i < 8; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  return result;
+}
+
+// Function to check if vkey is unique
+async function generateUniqueVkey(): Promise<string> {
+  let vkey: string;
+  let isUnique = false;
+
+  do {
+    vkey = generateVkey();
+    const existingOrg = await prisma.org.findFirst({
+      where: { vkey: vkey },
+    });
+    isUnique = !existingOrg;
+  } while (!isUnique);
+
+  return vkey;
+}
+
 app.post("/org", async (req, res) => {
   try {
     const { id, name } = req.body;
@@ -52,11 +78,15 @@ app.post("/org", async (req, res) => {
         .json("Organization name already exists. Please use a different name");
     }
 
+    // Generate unique vkey
+    const vkey = await generateUniqueVkey();
+
     const result = await prisma.$transaction(async (tx) => {
       const newOrg = await tx.org.create({
         data: {
           name: name,
           userId: id,
+          vkey: vkey, // Add the generated vkey
         },
       });
 
@@ -90,6 +120,7 @@ app.get("/user/organizations", async (req, res) => {
       select: {
         id: true,
         name: true,
+        vkey: true, // Include vkey in the response
         createdAt: true,
       },
       orderBy: {
