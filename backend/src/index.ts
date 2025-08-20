@@ -193,6 +193,54 @@ app.post("/notifications", async (req, res) => {
   }
 });
 
+// Endpoint to verify organization credentials for frontend package
+app.post("/verify-org", async (req, res) => {
+  try {
+    const { orgName, vkey } = req.body;
+
+    // Validate required fields
+    if (!orgName || !vkey) {
+      return res.status(400).json({
+        success: false,
+        error: "Organization name and vkey are required"
+      });
+    }
+
+    // Check if organization exists with matching credentials
+    const org = await prisma.org.findFirst({
+      where: {
+        name: orgName,
+        vkey: vkey,
+      },
+      select: {
+        id: true,
+        name: true,
+        vkey: true,
+        createdAt: true,
+      }
+    });
+
+    if (!org) {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid organization credentials"
+      });
+    }
+
+    // Return success with organization details
+    return res.status(200).json({
+      success: true,
+      organization: org
+    });
+  } catch (error) {
+    console.error("Error verifying organization:", error);
+    return res.status(500).json({
+      success: false,
+      error: "Internal server error"
+    });
+  }
+});
+
 const PORT = 5000;
 app.listen(PORT, () => {
   console.log("Server running on port 5000");
