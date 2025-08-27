@@ -1,7 +1,7 @@
 {
-  "name": "@awesome-pacific/notification-client",
+  "name": "awesome-pacific-notification-client",
   "version": "1.0.0",
-  "description": "Frontend client for Awesome Pacific notification system",
+  "description": "A React/Next.js notification widget for real-time notifications. Features organization verification, Redis pub/sub integration, customizable themes, and easy setup with environment variables.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -15,7 +15,13 @@
     "react",
     "nextjs",
     "websocket",
-    "redis"
+    "redis",
+    "widget",
+    "component",
+    "awesome-pacific",
+    "notification-system",
+    "pub-sub",
+    "typescript"
   ],
   "author": "Awesome Pacific",
   "license": "MIT",
@@ -34,10 +40,22 @@
   },
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "INSTALLATION.md"
   ],
   "repository": {
     "type": "git",
     "url": "https://github.com/awesome-pacific/notification-client"
-  }
+  },
+  "homepage": "https://github.com/awesome-pacific/notification-client#readme",
+  "bugs": {
+    "url": "https://github.com/awesome-pacific/notification-client/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "sideEffects": false
 }

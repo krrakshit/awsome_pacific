@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { NotificationClient, NotificationClientConfig, NotificationMessage, OrganizationInfo, VerificationResponse } from './index';
+import { NotificationClient } from './index';
+import type { NotificationClientConfig, NotificationMessage, OrganizationInfo, VerificationResponse } from './types';
 
 export interface UseNotificationClientOptions extends NotificationClientConfig {
   autoConnect?: boolean;

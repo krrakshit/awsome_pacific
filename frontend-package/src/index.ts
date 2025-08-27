@@ -1,35 +1,17 @@
 import { createClient, RedisClientType } from "redis";
+import type { 
+  NotificationMessage, 
+  OrganizationInfo, 
+  VerificationResponse, 
+  NotificationClientConfig 
+} from "./types";
 
-export interface NotificationMessage {
-  id: string;
-  content: string;
-  orgName: string;
-  senderName: string;
-  senderId: string;
-  sentTime: string;
-}
-
-export interface OrganizationInfo {
-  id: string;
-  name: string;
-  vkey: string;
-  createdAt: string;
-}
-
-export interface VerificationResponse {
-  success: boolean;
-  organization?: OrganizationInfo;
-  error?: string;
-}
-
-export interface NotificationClientConfig {
-  backendUrl: string;
-  redisUrl?: string;
-  onMessage?: (message: NotificationMessage) => void;
-  onError?: (error: Error) => void;
-  onConnect?: () => void;
-  onDisconnect?: () => void;
-}
+export type { 
+  NotificationMessage, 
+  OrganizationInfo, 
+  VerificationResponse, 
+  NotificationClientConfig 
+} from "./types";
 
 export class NotificationClient {
   private config: NotificationClientConfig;
@@ -39,7 +21,8 @@ export class NotificationClient {
 
   constructor(config: NotificationClientConfig) {
     this.config = {
-      redisUrl: "redis://localhost:6379",
+      redisUrl: process.env.NOTIFICATION_REDIS_URL || process.env.REACT_APP_NOTIFICATION_REDIS_URL || process.env.NEXT_PUBLIC_NOTIFICATION_REDIS_URL || "redis://localhost:6379",
+      backendUrl: process.env.NOTIFICATION_BACKEND_URL || process.env.REACT_APP_NOTIFICATION_BACKEND_URL || process.env.NEXT_PUBLIC_NOTIFICATION_BACKEND_URL || config.backendUrl,
       ...config,
     };
   }
@@ -195,5 +178,6 @@ export function createNotificationClient(config: NotificationClientConfig): Noti
   return new NotificationClient(config);
 }
 
-// Export types
-export type { NotificationMessage, OrganizationInfo, VerificationResponse, NotificationClientConfig };
+// Export React components
+export { NotificationWidget } from './components/NotificationWidget';
+export { useNotificationClient } from './react-hook';
